@@ -1,6 +1,9 @@
 package pro.ivanov.CodeBucket.models;
 
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import java.util.Set;
 
@@ -9,9 +12,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 
 @Entity
+@Table(name="users", uniqueConstraints = {
+		@UniqueConstraint(columnNames = "email"),
+		@UniqueConstraint(columnNames = "username"),
+})
 public class User {
 	  @Id
-	  @GeneratedValue(strategy=GenerationType.AUTO)
+	  @GeneratedValue(strategy=GenerationType.IDENTITY)
 	  private int id;
 
 	  private String name;
@@ -22,6 +29,7 @@ public class User {
 	  
 	  private String password;
 	  
+	  @OneToMany
 	  private Set<Role> roles;
 
 	  public int getId() {

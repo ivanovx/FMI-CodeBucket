@@ -1,6 +1,8 @@
 package pro.ivanov.CodeBucket.models;
 
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,6 +19,8 @@ public class Bucket {
 	
 	private String language;
 	
+	@ManyToOne
+	@JoinColumn(name="user_id", nullable=false)
 	private User user;
 
 	public String getTitle() {
