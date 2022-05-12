@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>pro.ivanov</groupId>
-	<artifactId>CodeBucket</artifactId>
+	<artifactId>codebucket</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>CodeBucket</name>
 	<description>Demo project for Spring Boot</description>

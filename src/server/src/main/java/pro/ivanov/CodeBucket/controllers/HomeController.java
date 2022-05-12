@@ -3,8 +3,8 @@ package pro.ivanov.CodeBucket.controllers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import pro.ivanov.CodeBucket.models.Bucket;
 import pro.ivanov.CodeBucket.repositories.BucketRepository;
+import pro.ivanov.CodeBucket.models.Bucket;
 
 @RestController()
 public class HomeController {

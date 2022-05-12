@@ -12,9 +12,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import pro.ivanov.CodeBucket.repositories.UserRepository;
 import pro.ivanov.CodeBucket.models.Role;
 import pro.ivanov.CodeBucket.models.User;
-import pro.ivanov.CodeBucket.repositories.UserRepository;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

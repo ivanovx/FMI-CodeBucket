@@ -3,6 +3,7 @@ package pro.ivanov.CodeBucket.repositories;
 import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
+
 import pro.ivanov.CodeBucket.models.User;
 
 public interface UserRepository extends CrudRepository<User, Integer> {
