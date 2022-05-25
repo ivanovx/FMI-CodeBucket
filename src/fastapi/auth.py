@@ -6,16 +6,16 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
 
-from sqlalchemy import select, insert
-
-from models import UserModel
 from schemas import User, TokenData
+from database import UserModel, Session
 
 # to get a string like this run:
 # openssl rand -hex 32
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+session = Session()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", scopes={"me": "Read information about the current user.", "items": "Read items."})
@@ -28,13 +28,22 @@ def get_password_hash(password):
 
 def create_user(username: str, email: str, password: str):
     hashed_password = pwd_context.hash(password)
+    user = UserModel()
 
-    user = insert(UserModel).values(username=username, email=email, hashed_password=hashed_password)
-        
+    user.username = username
+    user.email = email
+    user.hashed_password = hashed_password
+
+    session.add(user)
+    session.commit()
+
+def get_user(username: str):
+    user = session.query(UserModel).where(UserModel.username == username).first()
+
     return user
 
 def authenticate_user(username: str, password: str):
-    user = select(UserModel).where(UserModel.username == username)
+    user = get_user(username)
 
     if not user:
         return False
@@ -45,12 +54,16 @@ def authenticate_user(username: str, password: str):
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
     to_encode = data.copy()
+
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
+    
     to_encode.update({"exp": expire})
+    
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    
     return encoded_jwt
 
 
@@ -73,7 +86,7 @@ async def get_current_user(security_scopes: SecurityScopes, token: str = Depends
         token_data = TokenData(scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(token_data.username)
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:
