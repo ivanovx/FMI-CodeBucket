@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine, Boolean, Column, Integer, String
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import create_engine, Boolean, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 DATABASE_URL = "mysql://root:root@localhost/codebin"
 
@@ -16,6 +16,8 @@ class UserModel(Base):
     hashed_password = Column(String(30))
     is_active = Column(Boolean, default=True)
 
+    pastes = relationship("PasteModel", back_populates="user", cascade="all, delete-orphan")
+
 class PasteModel(Base):
     __tablename__ = "pastes"
 
@@ -24,6 +26,7 @@ class PasteModel(Base):
     content = Column(String(500))
     language = Column(String(20))
     is_private = Column(Boolean, default=False)
-    user_id = Column(Integer)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user = relationship("UserModel", back_populates="pastes")
 
 Base.metadata.create_all(engine)
