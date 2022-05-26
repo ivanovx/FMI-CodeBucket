@@ -2,24 +2,32 @@ from datetime import timedelta
 
 from fastapi import Depends, FastAPI, HTTPException, Security
 from fastapi.security import OAuth2PasswordRequestForm
-from database import UserModel, Session
-from schemas import Token, User, CreateUser
+from database import PasteModel, Session
+from schemas import CreatePaste, Token, User, CreateUser
 from auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_user, authenticate_user, create_access_token, get_current_active_user, get_current_user
 
 app = FastAPI()
 
-fake_users_db = {}
-
 session = Session()
 
-@app.get("/")
-async def root():
-    users = session.query(UserModel).all()
+@app.get("/pastes")
+async def list_pastes():
+    return []
 
-    return { 
-        "message": "Hello World",
-        "users": users
-    }
+@app.get("/pastes/create")
+async def create_paste(form_data: CreatePaste= Depends(), current_user = Depends(get_current_active_user)):
+    paste = PasteModel()
+
+    paste.title = form_data.title
+    paste.content = form_data.content
+    paste.language = form_data.language
+    paste.is_private = False
+    paste.user_id = current_user.id
+
+    session.add(paste)
+    session.commit()
+
+    return paste
 
 @app.post("/create", response_model=CreateUser)
 async def create(form_data: CreateUser= Depends()):
@@ -53,8 +61,3 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @app.get("/users/me/items/")
 async def read_own_items(current_user: User = Security(get_current_active_user, scopes=["items"])):
     return [{"item_id": "Foo", "owner": current_user.username}]
-
-
-@app.get("/status/")
-async def read_system_status(current_user: User = Depends(get_current_user)):
-    return {"status": "ok"}

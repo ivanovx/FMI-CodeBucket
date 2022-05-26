@@ -10,12 +10,13 @@ class TokenData(BaseModel):
     scopes: List[str] = []
 
 class User(BaseModel):
-    username: str
     email: Union[str, None] = None
-    full_name: Union[str, None] = None
-    disabled: Union[bool, None] = None
+    username: Union[str, None] = None
 
-class CreateUser(BaseModel):
-    username: str = None
-    email: str = None
+class CreateUser(User):
     password: str = None
+
+class CreatePaste(BaseModel):
+    title: str
+    content: str
+    language: str
