@@ -1,19 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
+
+import config from "../../config"
 
 const AuthContext = React.createContext(null);
 
 export const useAuth = () => React.useContext(AuthContext);
 
 export default function AuthProvider({ children }) {
-    const [user, setUser] = React.useState(null);
+    const [user, setUser] = useState(null);
 
-    React.useEffect(() => {
-        console.log(user);
-    }, [user]);
-
-    const signUp = () => {
-
+    const signUp = newUser => {
+        axios
+            .post(`${config.apiUrl}/create`, newUser)
+            .then(response  => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.log(error);
+            });
     };
 
     const signIn = () => {
