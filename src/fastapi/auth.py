@@ -1,12 +1,12 @@
 from typing import Union
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, Security, status
-from fastapi.security import OAuth2PasswordBearer, SecurityScopes
+from fastapi.security import  OAuth2PasswordRequestForm, OAuth2PasswordBearer, SecurityScopes
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
 
-from schemas import User, TokenData
+from schemas import CreateUser, User, TokenData
 from database import UserModel, Session
 
 # to get a string like this run:
@@ -14,8 +14,6 @@ from database import UserModel, Session
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-session = Session()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", scopes={"me": "Read information about the current user.", "items": "Read items."})
@@ -26,28 +24,30 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def create_user(username: str, email: str, password: str):
-    hashed_password = pwd_context.hash(password)
+def create_user(db: Session, form_data: CreateUser):
     user = UserModel()
 
-    user.username = username
-    user.email = email
-    user.hashed_password = hashed_password
+    user.email = form_data.email
+    user.username = form_data.username
+    user.hashed_password = pwd_context.hash(form_data.password)
 
-    session.add(user)
-    session.commit()
-
-def get_user(username: str):
-    user = session.query(UserModel).where(UserModel.username == username).first()
+    db.add(user)
+    db.commit()
+    db.refresh(user)
 
     return user
 
-def authenticate_user(username: str, password: str):
-    user = get_user(username)
+def get_user(db: Session, username: str):
+    user = db.query(UserModel).where(UserModel.username == username).first()
+
+    return user
+
+def authenticate_user(db: Session, form_data: OAuth2PasswordRequestForm):
+    user = get_user(db, form_data.username)
 
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(form_data.password, user.hashed_password):
         return False
     
     return user
@@ -60,6 +60,7 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     
+    #todo id
     to_encode.update({"exp": expire})
     
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

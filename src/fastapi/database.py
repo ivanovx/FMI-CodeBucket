@@ -11,12 +11,10 @@ class UserModel(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(15), unique=True, index=True)
-    email = Column(String(30), unique=True, index=True)
-    hashed_password = Column(String(30))
+    username = Column(String(20), unique=True, index=True)
+    email = Column(String(50), unique=True, index=True)
+    hashed_password = Column(String(100))
     is_active = Column(Boolean, default=True)
-
-    pastes = relationship("PasteModel", back_populates="user", cascade="all, delete-orphan")
 
 class PasteModel(Base):
     __tablename__ = "pastes"
@@ -26,7 +24,6 @@ class PasteModel(Base):
     content = Column(String(500))
     language = Column(String(20))
     is_private = Column(Boolean, default=False)
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    user = relationship("UserModel", back_populates="pastes")
+    user_id = Column(Integer, ForeignKey("users.id"))
 
 Base.metadata.create_all(engine)

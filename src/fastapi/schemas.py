@@ -1,4 +1,5 @@
 from typing import List, Union
+from fastapi.param_functions import Form
 from pydantic import BaseModel
 
 class Token(BaseModel):
@@ -13,8 +14,10 @@ class User(BaseModel):
     email: Union[str, None] = None
     username: Union[str, None] = None
 
-class CreateUser(User):
-    password: str = None
+class CreateUser(BaseModel):
+    email: str = Form()
+    username: str = Form()
+    password: str = Form()
 
 class CreatePaste(BaseModel):
     title: str
