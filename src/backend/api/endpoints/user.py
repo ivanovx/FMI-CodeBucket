@@ -1,18 +1,16 @@
+from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from datetime import timedelta
+from sqlalchemy.orm import Session
 
-from database import UserModel, Session
-from schemas import CreateUser
+from database import UserModel
 
-from auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_user, authenticate_user, create_access_token, get_current_active_user
+from auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_user, authenticate_user, create_access_token
 
 from api.deps import get_db
-from database import Session, UserModel
 
 from schemas import CreateUser
-from auth import create_user
 
 router = APIRouter()
 

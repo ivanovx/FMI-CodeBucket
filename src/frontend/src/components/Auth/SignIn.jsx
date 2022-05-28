@@ -10,12 +10,7 @@ export default function SignIn() {
 
         const formData = new FormData(event.currentTarget);
 
-        const newUser = {
-            username: formData.get("username"),
-            password: formData.get("password"),
-        };
-
-        auth.signIn(newUser);
+        auth.signIn(formData);
     };
 
     return (

@@ -8,7 +8,7 @@ export default function Users() {
 
     useEffect(() => {
         axios
-            .get(`${config.apiUrl}/users`)
+            .get(`${config.apiUrl}/user`)
             .then(res => {
                 console.log(res);
 

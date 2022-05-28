@@ -11,15 +11,19 @@ class TokenData(BaseModel):
     scopes: List[str] = []
 
 class User(BaseModel):
-    email: Union[str, None] = None
-    username: Union[str, None] = None
+    email: str
+    username: str
 
 class CreateUser(BaseModel):
-    email: str = Form()
-    username: str = Form()
-    password: str = Form()
+    email: str
+    username: str
+    password: str
 
 class CreatePaste(BaseModel):
     title: str
     content: str
     language: str
+
+class UserSignUp(BaseModel):
+    username: str
+    password: str
