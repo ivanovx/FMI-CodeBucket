@@ -1,4 +1,5 @@
 import React from "react";
+import { Navigate } from "react-router-dom";
 
 import { useAuth } from ".";
 
@@ -12,6 +13,10 @@ export default function SignIn() {
 
         auth.signIn(formData);
     };
+
+    if(auth.user) {
+        return <Navigate to="/" />
+    }
 
     return (
         <form onSubmit={onSignIn}>

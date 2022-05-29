@@ -1,14 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import config from "../../config"
+import store from "../../store";
+import config from "../../config";
 
-const AuthContext = React.createContext(null);
+const AuthContext = React.createContext();
 
 export const useAuth = () => React.useContext(AuthContext);
 
 export default function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
+    const activeUser = store.get("user", null);
+    const [user, setUser] = useState(activeUser);
+
+    const navigate = useNavigate();
+
+    useEffect(() => store.set("user", user), [user]);
 
     const signUp = newUser => {
         /*console.log(newUser);
@@ -26,19 +33,14 @@ export default function AuthProvider({ children }) {
         axios.post(`${config.apiUrl}/user/signin`, newUser, {
             headers: { "Content-Type": "multipart/form-data" },
         }).then(res => {
-            console.log(res);
+            setUser(res.data);
+            navigate("/");
         }).catch(err => {
             console.log(err);
         });
     };
 
-    const signOut = () => {
+    const signOut = () => setUser(null);
 
-    };
-
-    return (
-        <AuthContext.Provider value={{user, signUp, signIn, signOut}}>
-            {children}
-        </AuthContext.Provider>
-    )
+    return <AuthContext.Provider value={{user, signUp, signIn, signOut}}>{children}</AuthContext.Provider>
 }

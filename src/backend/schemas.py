@@ -1,3 +1,4 @@
+from ast import For
 from typing import List, Union
 from fastapi.param_functions import Form
 from pydantic import BaseModel
@@ -15,15 +16,17 @@ class User(BaseModel):
     username: str
 
 class CreateUser(BaseModel):
-    email: str
-    username: str
-    password: str
+    email: str = Form()
+    username: str = Form()
+    password: str = Form()
 
-class CreatePaste(BaseModel):
-    title: str
-    content: str
-    language: str
-
-class UserSignUp(BaseModel):
-    username: str
-    password: str
+class CreatePaste:
+    def __init__(
+        self, 
+        title: str = Form(), 
+        content: str = Form(), 
+        language: str = Form()
+    ):
+        self.title = title
+        self.content = content
+        self.language = language
