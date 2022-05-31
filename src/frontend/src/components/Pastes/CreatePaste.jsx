@@ -1,25 +1,19 @@
 import React from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+import { Form, Button } from "react-bootstrap";
 
 import { useAuth } from "../Auth";
 import config from "../../config";
 
-/*
- id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(30))
-    content = Column(String(500))
-    language = Column(String(20))
-    is_private = Column(Boolean, default=False)
-    user_id = Column(Integer, ForeignKey("users.id"))
-
-*/
-
 export default function CreatePaste() {
     const auth = useAuth();
+    const navigate = useNavigate();
 
     const { access_token } = auth.user;
 
-    const onCreatePastre = event => {
+    const onSubmitPaste = event => {
         event.preventDefault();
         
         const newPaste = new FormData(event.currentTarget);
@@ -27,24 +21,35 @@ export default function CreatePaste() {
         axios.post(`${config.apiUrl}/pastes/create`, newPaste, {
             headers: { 
                 "Content-Type": "multipart/form-data",
-               "Authorization": `Bearer ${access_token}`,
+                "Authorization": `Bearer ${access_token}`,
             },
         }).then(res => {
-            console.log(res);
+            const { data } = res;
+            console.log(data)
+            navigate(`/pastes/${data.id}`);
         }).catch(err => {
             console.log(err);
         });
     };
 
     return (
-        <div>
-            <h2>Create Paste</h2>
-            <form onSubmit={onCreatePastre}>
-                <input type="text" name="title" placeholder="Paste title" />
-                <textarea name="content" cols="30" rows="10" defaultValue="Paste content" />
-                <input type="text" name="language" placeholder="Paste language"  />
-                <button type="submit">Create paste</button>
-            </form>
-        </div>
-    );  
+        <Form onSubmit={onSubmitPaste}>
+            <Form.Group className="mb-3">
+                <Form.Label>Title</Form.Label>
+                <Form.Control name="title" type="text" placeholder="Enter Title" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+                <Form.Label>Language</Form.Label>
+                <Form.Control name="language" type="text" placeholder="Select Language" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+                <Form.Label>Content</Form.Label>
+                <Form.Control as="textarea" rows={5} name="content" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+                <Form.Check type="checkbox" label="Is private" name="is_private" />
+            </Form.Group>
+            <Button variant="primary" type="submit">Create Paste</Button>
+        </Form>
+    );
 };

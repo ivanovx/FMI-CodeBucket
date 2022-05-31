@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 import config from "../../config"
+import { Link } from "react-router-dom";
 
 export default function Pastes() {
     const [pastes, setPastes] = useState([]);
@@ -16,14 +17,12 @@ export default function Pastes() {
     }, []);
 
     return (
-        <div>
+        <ul>
             {pastes.map(paste => (
-                <div key={paste.title}>
-                    <h1>{paste.title}</h1>
-                    <h2>{paste.language}</h2>
-                    <code>{paste.content}</code>
-                </div>
+                <li key={paste.id}>
+                    <Link to={`/pastes/${paste.id}`}>{paste.title}</Link>
+                </li>
             ))}
-        </div>
+        </ul>
     );
 }

@@ -18,15 +18,14 @@ export default function AuthProvider({ children }) {
     useEffect(() => store.set("user", user), [user]);
 
     const signUp = newUser => {
-        /*console.log(newUser);
-
-        const url = `${config.apiUrl}/user/signup`;
-        const headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/x-www-form-urlencoded",
-        };
-
-        axios.post(url, newUser, headers).then(res => console.log(res));*/
+        axios.post(`${config.apiUrl}/user/signup`, newUser, {
+            headers: { "Content-Type": "multipart/form-data" },
+        }).then(res => {
+            console.log(res);
+            navigate("/signin");
+        }).catch(err => {
+            console.log(err);
+        });
     };
 
     const signIn = newUser => {

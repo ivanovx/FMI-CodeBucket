@@ -14,7 +14,7 @@ export default function SignIn() {
         auth.signIn(formData);
     };
 
-    if(auth.user) {
+    if (auth.user) {
         return <Navigate to="/" />
     }
 

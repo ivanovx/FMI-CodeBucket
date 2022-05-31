@@ -11,14 +11,12 @@ export default function SignUp() {
 
         const formData = new FormData(event.currentTarget);
 
-        const newUser = {
-            email: formData.get("email"),
-            username: formData.get("username"),
-            password: formData.get("password"),
-        };
-
-        auth.signUp(newUser);
+        auth.signUp(formData);
     };
+
+    if (auth.user) {
+        return <Navigate to="/" />
+    }
 
     return (
         <form onSubmit={onSignUp}>

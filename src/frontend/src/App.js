@@ -11,6 +11,7 @@ import Users from "./components/Users";
 import SignIn from "./components/Auth/SignIn";
 import SignUp from "./components/Auth/SignUp";
 import AuthProvider from "./components/Auth";
+import Paste from "./components/Pastes/Paste";
 
 export default function App() {
     return (
@@ -19,6 +20,7 @@ export default function App() {
                 <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
                     <Route path="/pastes" element={<Pastes />} />
+                    <Route path="/pastes/:id" element={<Paste />} />
                     <Route path="/pastes/my" element={<MyPastes />} />
                     <Route path="/pastes/create" element={<CreatePaste />} />
                     <Route path="users" element={<Users />} />
