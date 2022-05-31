@@ -1,23 +1,23 @@
 from typing import Union
 from datetime import datetime, timedelta
-from fastapi import Depends, HTTPException, Security, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import  OAuth2PasswordRequestForm, OAuth2PasswordBearer, SecurityScopes
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
 from api.deps import get_db
 
-from database import UserModel, Session
-from schemas import CreateUser, User, TokenData
+from sqlalchemy.orm import Session
 
-# to get a string like this run:
-# openssl rand -hex 32
+from database import UserModel
+from schemas import CreateUser, TokenData
+
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", scopes={"me": "Read information about the current user.", "items": "Read items."})
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/signin")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -60,14 +60,12 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
-    
-    #todo id
+
     to_encode.update({"exp": expire})
     
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     
     return encoded_jwt
-
 
 async def get_current_user(security_scopes: SecurityScopes, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     if security_scopes.scopes:

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -15,18 +15,16 @@ export default function CreatePaste() {
 
     const onSubmitPaste = event => {
         event.preventDefault();
-        
+
         const newPaste = new FormData(event.currentTarget);
 
         axios.post(`${config.apiUrl}/pastes/create`, newPaste, {
-            headers: { 
+            headers: {
                 "Content-Type": "multipart/form-data",
                 "Authorization": `Bearer ${access_token}`,
             },
         }).then(res => {
-            const { data } = res;
-            console.log(data)
-            navigate(`/pastes/${data.id}`);
+            navigate(`/pastes/${res.data.id}`);
         }).catch(err => {
             console.log(err);
         });
@@ -38,10 +36,7 @@ export default function CreatePaste() {
                 <Form.Label>Title</Form.Label>
                 <Form.Control name="title" type="text" placeholder="Enter Title" />
             </Form.Group>
-            <Form.Group className="mb-3">
-                <Form.Label>Language</Form.Label>
-                <Form.Control name="language" type="text" placeholder="Select Language" />
-            </Form.Group>
+           <SelectListForLangs />
             <Form.Group className="mb-3">
                 <Form.Label>Content</Form.Label>
                 <Form.Control as="textarea" rows={5} name="content" />
@@ -53,3 +48,29 @@ export default function CreatePaste() {
         </Form>
     );
 };
+
+
+function SelectListForLangs() {
+    const [langs, setLangs] = useState([]);
+
+    useEffect(() => {
+        fetch(
+            'https://parseapi.back4app.com/classes/All_Programming_Languages?limit=50&order=ProgrammingLanguage&keys=ProgrammingLanguage',
+            {
+              headers: {
+                'X-Parse-Application-Id': 'XpRShKqJcxlqE5EQKs4bmSkozac44osKifZvLXCL', // This is the fake app's application id
+                'X-Parse-Master-Key': 'Mr2UIBiCImScFbbCLndBv8qPRUKwBAq27plwXVuv', // This is the fake app's readonly master key
+              }
+            }
+        )
+        .then(res => res.json())
+        .then(data => setLangs(data.results));
+    }, [langs]);
+
+    return (
+        <Form.Select name="language">
+            <option>Select Language</option>
+            {langs.map(lang => <option key={lang.objectId} value={lang.ProgrammingLanguage}>{lang.ProgrammingLanguage}</option>)}
+    </Form.Select>
+    );
+}

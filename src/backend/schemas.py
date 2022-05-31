@@ -32,7 +32,7 @@ class CreatePaste:
         title: str = Form(), 
         content: str = Form(),
         language: str = Form(),
-        is_private: bool = Form(),
+        is_private: bool = Form(False),
     ):
         self.title = title
         self.content = content

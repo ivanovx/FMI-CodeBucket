@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { Form, Button } from "react-bootstrap";
 
 import { useAuth } from ".";
 
@@ -19,11 +20,16 @@ export default function SignIn() {
     }
 
     return (
-        <form onSubmit={onSignIn}>
-            <input name="username" type="text" placeholder="Username" />
-            <input name="password" type="password" placeholder="Password" />
-
-            <button type="submit">Sign In</button>
-        </form>
+        <Form onSubmit={onSignIn}>
+            <Form.Group className="mb-3">
+                <Form.Label>Username</Form.Label>
+                <Form.Control name="username" type="text" placeholder="Enter username" />
+            </Form.Group>
+            <Form.Group className="mb-3">
+                <Form.Label>Password</Form.Label>
+                <Form.Control name="password" type="password" placeholder="Enter password" />
+            </Form.Group>
+            <Button variant="primary" type="submit">Sign In</Button>
+        </Form>
     );
 }
