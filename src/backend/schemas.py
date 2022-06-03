@@ -1,41 +1,32 @@
-from ast import For
-from typing import List, Union
-from fastapi.param_functions import Form
-from pydantic import BaseModel
+from typing import List
+from fastapi import Form
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+class Token:
+    token: str
+    type: str
 
-class TokenData(BaseModel):
-    username: Union[str, None] = None
+class TokenData:
+    username: str
     scopes: List[str] = []
 
-class User(BaseModel):
-    email: str
-    username: str
-
-class CreateUser:
+class UserSignUp:
     def __init__(
         self, 
         email: str = Form(), 
         username: str = Form(), 
-        password: str = Form()
+        password: str = Form(),
     ):
         self.email = email
         self.username = username
         self.password = password
 
-class CreatePaste:
+class UserSignIn:
     def __init__(
         self, 
-        title: str = Form(), 
-        content: str = Form(),
-        language: str = Form(),
-        is_private: bool = Form(False),
+        username: str = Form(), 
+        password: str = Form(),
+        scopes: str = Form(default=None),
     ):
-        self.title = title
-        self.content = content
-        self.language = language
-        self.is_private = is_private
-        
+        self.username = username
+        self.password = password
+        self.scopes = scopes

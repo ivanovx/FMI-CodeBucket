@@ -1,33 +1,18 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
-
 from sqlalchemy.orm import Session
-
-from database import UserModel
-
-from auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_user, authenticate_user, create_access_token
+from fastapi import APIRouter, Depends, HTTPException
 
 from api.deps import get_db
-
-from schemas import CreateUser
+from crud.user import create_user
+from models import User
+from schemas import UserSignUp, UserSignIn
 
 router = APIRouter()
 
-@router.get("/")
-def list_users(db: Session = Depends(get_db)):
-    users = db.query(UserModel).all()
-
-    return users
-
-@router.post("/signup")
-def signup(db: Session = Depends(get_db), form_data: CreateUser = Depends()):
-    user = create_user(db, form_data)
-
-    return user
+from auth import ACCESS_TOKEN_EXPIRE_MINUTES, pwd_context, authenticate_user, create_access_token
 
 @router.post("/signin")
-def signin(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
+def sign_in(db: Session = Depends(get_db), form_data: UserSignIn = Depends()):
     user = authenticate_user(db, form_data)
 
     if not user:
@@ -43,7 +28,19 @@ def signin(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm =
     )
     
     return {
-        "user": user,
-        "access_token": access_token, 
-        "token_type": "bearer"
+        "email": user.email,
+        "username": user.username,
+        "token": access_token, 
+        "type": "bearer"
     }
+
+
+@router.post("/signup")
+def sign_up(db: Session = Depends(get_db), form_data: UserSignUp = Depends()):
+    user = User()
+
+    user.email = form_data.email
+    user.username = form_data.username
+    user.hashed_password = pwd_context.hash(form_data.password)
+
+    return create_user(db, user)

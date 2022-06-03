@@ -1,17 +1,16 @@
 from typing import Union
-from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, SecurityScopes
+from fastapi.security import  OAuth2PasswordRequestForm, OAuth2PasswordBearer, SecurityScopes
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from pydantic import ValidationError
+from api.deps import get_db
 
 from sqlalchemy.orm import Session
-from pydantic import ValidationError
-from passlib.context import CryptContext
 
-from schemas import TokenData, UserSignIn
-
-from api.deps import get_db
-from crud.user import get_user
+from database import UserModel
+from schemas import CreateUser, TokenData
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
@@ -26,13 +25,31 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def authenticate_user(db: Session, form_data: UserSignIn):
+def create_user(db: Session, form_data: CreateUser):
+    user = UserModel()
+
+    user.email = form_data.email
+    user.username = form_data.username
+    user.hashed_password = pwd_context.hash(form_data.password)
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+def get_user(db: Session, username: str):
+    user = db.query(UserModel).where(UserModel.username == username).first()
+
+    return user
+
+def authenticate_user(db: Session, form_data: OAuth2PasswordRequestForm):
     user = get_user(db, form_data.username)
 
     if not user:
-        return None
+        return False
     if not verify_password(form_data.password, user.hashed_password):
-        return None
+        return False
     
     return user
 
@@ -50,7 +67,7 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     
     return encoded_jwt
 
-def get_current_user(security_scopes: SecurityScopes, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+async def get_current_user(security_scopes: SecurityScopes, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
