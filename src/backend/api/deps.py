@@ -1,10 +1,9 @@
 from typing import Generator
-
-from database import SessionLocal
+from database import Session
 
 def get_db() -> Generator:
     try:
-        db = SessionLocal()
+        db = Session()
         yield db
     finally:
         db.close()
